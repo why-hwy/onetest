@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizhi.student.dao.StudentInfoDao">
+
+    <sql id="StudentColumns">
+        a.id,
+        a.student_id,
+        a.exam_id,
+        a.class_id,
+        a.student_name,
+        a.certify,
+        a.mail_address,
+        a.foreign_lanaguage,
+        a.student_sex,
+        a.nation,
+        a.political,
+        a.card_id,
+        a.telephone,
+        a.subject_type,
+        a.tocollege,
+        a.tocampus,
+        a.tomajor,
+        a.birthplace,
+        a.grade,
+        a.isstate,
+        a.birthday,
+        a.note,
+        a.add_time,
+        a.add_userid,
+        a.edit_time,
+        a.edit_userid
+    </sql>
+
+    <sql id="StudentClass">
+        left join sys_class sc on sc.id=a.class_id
+    </sql>
+
+    <!-- 根据id查询StudentInfo -->
+    <select id="get" resultType="com.yizhi.student.domain.StudentInfoDO">
+        SELECT
+        <include refid="StudentColumns"/>
+        FROM s_student_info a
+        <include refid="StudentClass"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <!-- 根据条件查询StudentInfo列表 -->
+    <select id="list" resultType="com.yizhi.student.domain.StudentInfoDO">
+        select
+        <include refid="StudentColumns"/>
+        from s_student_info a
+        <include refid="StudentClass"/>
+        <where>
+            <!-- 添加条件：姓名 -->
+            <if test="name != null and name.trim() != ''">
+                and a.name like concat('%', #{name}, '%')
+            </if>
+            <!-- 添加条件：所属学院 -->
+            <if test="tocollegeId != null and tocollegeId.trim() != ''">
+                and a.tocollege = #{tocollegeId}
+            </if>
+            <!-- 添加条件：所属专业 -->
+            <if test="tomajorId != null and tomajorId.trim() != ''">
+                and a.tomajor = #{tomajorId}
+            </if>
+            <!-- 添加条件：班级 -->
+            <if test="classId != null and classId.trim() != ''">
+                and a.class_Id = #{classId}
+            </if>
+        </where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+            <otherwise>
+                order by a.id desc
+            </otherwise>
+        </choose>
+        <if test="offset != null and limit != null">
+            limit #{offset}, #{limit}
+        </if>
+    </select>
+
+
+    <!-- 插入StudentInfo -->
+    <insert id="save" parameterType="com.yizhi.student.domain.StudentInfoDO">
+        INSERT INTO s_student_info (
+            student_id,
+            exam_id,
+            class_id,
+            student_name,
+            certify,
+            mail_address,
+            foreign_lanaguage,
+            student_sex,
+            nation,
+            political,
+            card_id,
+            telephone,
+            subject_type,
+            tocollege,
+            tocampus,
+            tomajor,
+            birthplace,
+            grade,
+            isstate,
+            birthday,
+            note,
+            add_time,
+            add_userid,
+            edit_time,
+            edit_userid
+        ) VALUES (
+                     #{studentId},
+                     #{examId},
+                     #{classId},
+                     #{studentName},
+                     #{certify},
+                     #{mailAddress},
+                     #{foreignLanaguage},
+                     #{studentSex},
+                     #{nation},
+                     #{political},
+                     #{cardId},
+                     #{telephone},
+                     #{subjectType},
+                     #{tocollege},
+                     #{tocampus},
+                     #{tomajor},
+                     #{birthplace},
+                     #{grade},
+                     #{isstate},
+                     #{birthday},
+                     #{note},
+                     #{addTime},
+                     #{addUserid},
+                     #{editTime},
+                     #{editUserid}
+                 )
+    </insert>
+
+
+    <!-- 根据条件统计StudentInfo数量 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM s_student_info a
+        <include refid="StudentClass"/>
+
+    </select>
+
+
+    <update id="update" parameterType="com.yizhi.student.domain.StudentInfoDO">
+        UPDATE s_student_info
+        SET
+            student_id = #{studentId},
+            exam_id = #{examId},
+            class_id = #{classId},
+            student_name = #{studentName},
+            certify = #{certify},
+            mail_address = #{mailAddress},
+            foreign_lanaguage = #{foreignLanaguage},
+            student_sex = #{studentSex},
+            nation = #{nation},
+            political = #{political},
+            card_id = #{cardId},
+            telephone = #{telephone},
+            subject_type = #{subjectType},
+            tocollege = #{tocollege},
+            tocampus = #{tocampus},
+            tomajor = #{tomajor},
+            birthplace = #{birthplace},
+            grade = #{grade},
+            isstate = #{isstate},
+            birthday = #{birthday},
+            note = #{note},
+            edit_time = #{editTime},
+            edit_userid = #{editUserid}
+        WHERE id = #{id}
+    </update>
+
+
+
+    <!-- 根据id删除StudentInfo -->
+    <delete id="remove" parameterType="int">
+        DELETE FROM s_student_info WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除StudentInfo -->
+    <delete id="batchRemove" parameterType="Integer[]">
+        DELETE FROM s_student_info  WHERE id IN
+        <foreach item="item" collection="array" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>
